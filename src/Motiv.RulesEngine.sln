@@ -1,0 +1,39 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Motiv.RulesEngine", "Motiv.RulesEngine\Motiv.RulesEngine.csproj", "{DE48C01D-EF18-4B4C-88C2-7222ECD4A289}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Motiv.RulesEngine.Tests", "Motiv.RulesEngine.Tests\Motiv.RulesEngine.Tests.csproj", "{8B84D75F-9DE0-42D0-8558-EDBE6BED5CB9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Motiv.RulesEngine.WebApi", "examples\Motiv.RulesEngine.WebApi\Motiv.RulesEngine.WebApi.csproj", "{6469BF3C-6CE6-40AA-909C-6E7CC2E92163}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples", "examples", "{14DB98CB-222F-4E8C-9CEF-5EA8669096D6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Motiv.RulesEngine.AspNetCore", "Motiv.RulesEngine.AspNetCore\Motiv.RulesEngine.AspNetCore.csproj", "{32B7D606-7A98-40C1-A40E-27AE554FAF85}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DE48C01D-EF18-4B4C-88C2-7222ECD4A289}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE48C01D-EF18-4B4C-88C2-7222ECD4A289}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DE48C01D-EF18-4B4C-88C2-7222ECD4A289}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DE48C01D-EF18-4B4C-88C2-7222ECD4A289}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8B84D75F-9DE0-42D0-8558-EDBE6BED5CB9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8B84D75F-9DE0-42D0-8558-EDBE6BED5CB9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8B84D75F-9DE0-42D0-8558-EDBE6BED5CB9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8B84D75F-9DE0-42D0-8558-EDBE6BED5CB9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6469BF3C-6CE6-40AA-909C-6E7CC2E92163}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6469BF3C-6CE6-40AA-909C-6E7CC2E92163}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6469BF3C-6CE6-40AA-909C-6E7CC2E92163}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6469BF3C-6CE6-40AA-909C-6E7CC2E92163}.Release|Any CPU.Build.0 = Release|Any CPU
+		{32B7D606-7A98-40C1-A40E-27AE554FAF85}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{32B7D606-7A98-40C1-A40E-27AE554FAF85}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32B7D606-7A98-40C1-A40E-27AE554FAF85}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{32B7D606-7A98-40C1-A40E-27AE554FAF85}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{6469BF3C-6CE6-40AA-909C-6E7CC2E92163} = {14DB98CB-222F-4E8C-9CEF-5EA8669096D6}
+	EndGlobalSection
+EndGlobal
