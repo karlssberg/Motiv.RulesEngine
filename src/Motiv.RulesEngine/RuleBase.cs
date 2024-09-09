@@ -3,116 +3,49 @@ using System.Reflection;
 
 namespace Motiv.RulesEngine;
 
-public abstract class RuleBase<TModel, TMetadata>(Expression<Func<SpecBase<TModel>>> defaultTemplate) : IRule
+public abstract class RuleBase
 {
-    private readonly ReaderWriterLockSlim _lock = new ();
-    
-    private SpecBase<TModel>? _specOverride;
-    
-    public Type ModelType { get; } = typeof(TModel);
-    
-    public Type MetadataType { get; } = typeof(TMetadata);
-    
-    private readonly Expression<Func<IServiceProvider, SpecBase<TModel>>> _defaultFactoryExpression =
-        DefaultParameterValueAsInjectable.Transform(defaultTemplate) ;
-    
-    private Func<IServiceProvider, SpecBase<TModel>>? _defaultFactory;
-    
-    public Func<IServiceProvider, SpecBase<TModel>> DefaultFactory
+    protected RuleBase()
     {
-        get
-        {
-            _defaultFactory ??= _defaultFactoryExpression.Compile();
-            return _defaultFactory;
-        }
-    }
-
-    SpecBase IRule.GetSpec(IServiceProvider serviceProvider) => GetSpec(serviceProvider);
-    public SpecBase<TModel> GetSpec(IServiceProvider serviceProvider)
-    {
-        var specOverride = GetSpecOverride();
-        
-        return specOverride ?? DefaultFactory(serviceProvider);
-    }
-
-    public void OverrideSpec(SpecBase spec)
-    {
-        _lock.EnterWriteLock();
-        try
-        {
-            _specOverride = spec switch
-            {
-                SpecBase<TModel> specification => specification,
-                _ => throw new InvalidOperationException(
-                    $"Expecting a Spec<{ModelType.FullName}>, but received a Spec<{spec.GetModelType().FullName}>")
-            };
-        }
-        finally
-        {
-            _lock.ExitWriteLock();
-        }
+        Name = GetName();
     }
     
-    private SpecBase<TModel>? GetSpecOverride()
-    {
-        if (!_lock.IsWriteLockHeld)
-            return _specOverride;
-            
-        _lock.EnterReadLock();
-        try
-        {
-            return _specOverride;
-        }
-        finally
-        {
-            _lock.ExitReadLock();
-        }
-    }
-
+    public string Name { get; }
     
 
-//    private static IReadOnlyList<SpecMeta> GetSpecsFromExpression(Expression defaultExpression)
-//    {
-//        var visitor = new SpecExpressionParameterSniffer();
-//        visitor.Visit(defaultExpression);
-//        return visitor.Propositions;
-//    }
-//
-//    private class SpecExpressionParameterSniffer : ExpressionVisitor
-//    {
-//        private readonly List<SpecMeta> _propositions = new();
-//
-//        public IReadOnlyList<SpecMeta> Propositions => _propositions;
-//
-//        protected override Expression VisitNew(NewExpression node)
-//        {
-//            if (!typeof(SpecBase<TModel>).IsAssignableFrom(node.Type))
-//                return base.VisitNew(node);
-//            
-//            var propInfo = new SpecMeta(
-//                node.Type,
-//                node.Constructor?.GetParameters() ?? [],
-//                node.Arguments.Select(EvaluateExpression));
-//
-//            _propositions.Add(propInfo);
-//
-//            return base.VisitNew(node);
-//        }
-//
-//        private object EvaluateExpression(Expression expr)
-//        {
-//            return expr switch
-//            {
-//                ConstantExpression constExpr => constExpr.Value ??
-//                                                throw new InvalidOperationException("Constant expression value is null"),
-//                _ => throw new InvalidOperationException("Only constant expressions are supported with de")
-//            };
-//        }
-//    }
-
-    private record SpecMeta(Type? spec, ParameterInfo[] parameters, IEnumerable<object> nodeArguments);
+    private string GetName() => GetType().GetCustomAttribute<ExportAttribute>()?.Identifier ?? GetType().Name;
 }
 
-public abstract class RuleBase<TModel>(Expression<Func<SpecBase<TModel>>> defaultTemplate) : RuleBase<TModel, string>(defaultTemplate)
+public abstract class RuleBase<TModel, TMetadata> : RuleBase
 {
+    public Expression<Func<IServiceProvider, SpecBase<TModel, TMetadata>>> DefaultTemplate { get; }
+
+    public RuleBase(Expression<Func<SpecBase<TModel, TMetadata>>> defaultTemplate)
+    {
+        DefaultTemplate = DefaultParameterValueAsInjectable.Transform(defaultTemplate);
+        DefaultFactory = DefaultTemplate.Compile();
+    }
+    
+    public RuleBase(Expression<Func<IServiceProvider, SpecBase<TModel, TMetadata>>> defaultTemplate)
+    {
+        DefaultTemplate = defaultTemplate;
+        DefaultFactory = defaultTemplate.Compile();
+    }
+
+    public Func<IServiceProvider, SpecBase<TModel, TMetadata>> DefaultFactory { get; init; }
+}
+
+public abstract class RuleBase<TModel> : RuleBase<TModel, string>
+{
+    public RuleBase(Expression<Func<SpecBase<TModel>>> defaultTemplate) : base(ConvertToExplanationSpec(defaultTemplate))
+    {
+    }
+
+    private static Expression<Func<SpecBase<TModel, string>>> ConvertToExplanationSpec(Expression<Func<SpecBase<TModel>>> expression)
+    {
+        var methodInfo = typeof(SpecBase<TModel>).GetMethod(nameof(SpecBase<TModel>.ToExplanationSpec))
+            ?? throw new InvalidOperationException("Could not find ToExplanationSpec method on SpecBase<TModel>.");
+        
+        return Expression.Lambda<Func<SpecBase<TModel, string>>>(Expression.Call(expression.Body, methodInfo));
+    }
 }

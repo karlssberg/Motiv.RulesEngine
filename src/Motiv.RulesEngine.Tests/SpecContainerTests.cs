@@ -1,7 +1,7 @@
 ﻿
 namespace Motiv.RulesEngine.Tests;
 
-public class SpecCollectionExtensionsTests
+public class ServiceCollectionExtensionsTests
 {
 //    [Fact]
 //    public void Should_add_specs_to_container()

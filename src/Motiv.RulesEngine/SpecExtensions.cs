@@ -23,18 +23,22 @@ public static class SpecExtensions
         var type = specType;
         do
         {
-            if (IsSpecOf(typeof(SpecBase<,>)))
+            if (type.IsGenericType(typeof(SpecBase<,>)))
+                return (type.GenericTypeArguments[0], type.GenericTypeArguments[1]);
+            
+            if (type.IsGenericType(typeof(RuleBase<,>)))
                 return (type.GenericTypeArguments[0], type.GenericTypeArguments[1]);
             
             type = type.BaseType;
         } while (type is not null);
         
         throw new InvalidOperationException("Spec<,> type not found");
-
-        bool IsSpecOf(Type genericType) => type.IsGenericType && type.GetGenericTypeDefinition() == genericType;
     }
+    
+    
+    public static bool IsGenericType(this Type type, Type genericType) => type.IsGenericType && type.GetGenericTypeDefinition() == genericType;
     
     public static (Type Model, Type Metadata) GetModelAndMetadataTypes(this SpecBase spec) => 
         spec.GetType().GetModelAndMetadataTypes();
-    
+
 }

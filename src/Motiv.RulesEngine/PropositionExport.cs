@@ -1,19 +1,17 @@
-﻿using System.Diagnostics;
-using System.Reflection;
+﻿using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Motiv.RulesEngine;
 
-public class SpecExport<TSpec, TModel, TMetadata>
-    : ISpecExport<TModel, TMetadata> where TSpec : SpecBase<TModel, TMetadata>
+public class PropositionExport<TSpec, TModel, TMetadata>
+    : IPropositionExport<TModel, TMetadata> where TSpec : SpecBase<TModel, TMetadata>
 {
  
     private readonly ConstructorInfo _tartgetConstructor;
     private readonly IServiceProvider _serviceProvider;
     private readonly Proposition _proposition;
-
-
-    public SpecExport(IServiceProvider serviceProvider)
+    
+    public PropositionExport(IServiceProvider serviceProvider)
     {
         _serviceProvider = serviceProvider;
         _proposition = new Proposition(GetPropositionName());
@@ -32,19 +30,21 @@ public class SpecExport<TSpec, TModel, TMetadata>
     public Type SpecType { get; } = typeof(TSpec);
     
     public string Template => _proposition.Template;
+
     public IEnumerable<PropositionParameter> TemplateParameters { get; }
 
+    SpecBase<TModel> IPropositionExport<TModel>.CreateInstance(string proposition) =>
+        CreateInstance(proposition);
 
-    SpecBase<TModel> ISpecExport<TModel>.Activate(IDictionary<string, object> parametersValues) =>
-        Activate(parametersValues);
-
-    SpecBase ISpecExport.Activate(IDictionary<string, object> parametersValues) => Activate(parametersValues);
+    SpecBase IPropositionExport.CreateInstance(string proposition) =>
+        CreateInstance(proposition);
     
-    public SpecBase<TModel, TMetadata> Activate(IDictionary<string, object> parametersValues)
+    public SpecBase<TModel, TMetadata> CreateInstance(string proposition)
     {
+        var parametersValue = _proposition.DetermineParameterValues(proposition);
 
         var arguments = _tartgetConstructor.GetParameters().Select(parameter =>
-            parametersValues.TryGetValue(parameter.Name ?? "", out var value)
+            parametersValue.TryGetValue(parameter.Name ?? "", out var value)
                 ? value
                 : _serviceProvider.GetRequiredService(parameter.ParameterType));
 
@@ -56,10 +56,10 @@ public class SpecExport<TSpec, TModel, TMetadata>
         var candidateConstructorGroup = SelectConstructor(parameterNames)?.ToList();
 
         if (candidateConstructorGroup is null or { Count: 0 })
-            ThrowNoConstructorFound();
+            throw CreateNoConstructorFoundException();
 
-        if (candidateConstructorGroup.Count > 1)
-            ThrowAmbiguousConstructor();
+        if (candidateConstructorGroup!.Count > 1)
+            throw CreateAmbiguousConstructorException();
 
         var constructor = candidateConstructorGroup.Single();
         return constructor;
@@ -67,52 +67,37 @@ public class SpecExport<TSpec, TModel, TMetadata>
 
     private IEnumerable<ConstructorInfo>? SelectConstructor(IEnumerable<string> parameterNames)
     {
-        bool HasParameterName(ConstructorInfo c, string parameterName)
-        {
-            return c.GetParameters().Any(p => p.Name == parameterName);
-        }
-
         return SpecType.GetConstructors(BindingFlags.Public | BindingFlags.Instance)
             .Where(constructor =>
                 parameterNames.All(parameterName => HasParameterName(constructor, parameterName)))
             .GroupBy(c => c.GetParameters().Length)
             .OrderByDescending(g => g.Key)
             .FirstOrDefault();
+
+        bool HasParameterName(ConstructorInfo c, string parameterName)
+        {
+            return c.GetParameters().Any(p => p.Name == parameterName);
+        }
     }
 
     private static string GetPropositionName() =>
         typeof(TSpec).GetCustomAttribute<ExportAttribute>()?.Identifier
-        ?? ThrowMissingIdentifier();
+        ?? throw CreateMissingIdentifierException();
 
-    private static string ThrowMissingIdentifier() =>
-        throw new InvalidOperationException(
+    private static Exception CreateMissingIdentifierException() =>
+        new InvalidOperationException(
             $"""
              Failed to determine the export name of the spec '{typeof(TSpec).FullName}'.
-                 
              """);
 
-    private void ThrowAmbiguousConstructor()
-    {
-        throw new InvalidOperationException(
+    private Exception CreateAmbiguousConstructorException() =>
+        new InvalidOperationException(
             $"Ambiguous choice of constructors for the spec '{SpecType.FullName}'.");
-    }
 
-    private void ThrowNoConstructorFound()
-    {
-        throw new InvalidOperationException(
+    private Exception CreateNoConstructorFoundException() =>
+        new InvalidOperationException(
             $"""
              No suitable constructors found for the spec '{SpecType.FullName}'that contain all the expected parameters.
                  Expected: {string.Join(", ", _proposition.ParameterNames)}
              """);
-    }
-
-    private void ThrowUnexpectedParameters(IDictionary<string, object> parametersValues)
-    {
-        throw new InvalidOperationException(
-            $"""
-             Unexpected set of parameters for the spec '{SpecType.FullName}'.
-                 Expected: {string.Join(", ", _proposition.ParameterNames)}
-                 Actual: {string.Join(", ", parametersValues.Keys)}
-             """);
-    }
 }

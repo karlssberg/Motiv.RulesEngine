@@ -1,8 +1,10 @@
 using Motiv.RulesEngine;
 using Motiv.RulesEngine.AspNetCore;
+using Motiv.RulesEngine.LiteDB;
 using Motiv.RulesEngine.WebApi.rules;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.AddServiceDefaults();
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -16,17 +18,16 @@ builder.Services.AddSpec<IsPositive>();
 builder.Services.AddSpec<IsNegative>();
 builder.Services.AddSpec<IsZero>();
 builder.Services.AddSpec<IsGreaterThanCurrencyAmount>();
+builder.Services.AddLiteDbRuleStore();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowLocalhost",
-        builder =>
-        {
-            builder.SetIsOriginAllowed(origin => new Uri(origin).Host == "localhost")
-                .AllowAnyHeader()
-                .AllowAnyMethod();
-        });
+        policyBuilder => policyBuilder.SetIsOriginAllowed(AllowLocalhost)
+            .AllowAnyHeader()
+            .AllowAnyMethod());
 });
 var app = builder.Build();
+app.MapDefaultEndpoints();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -38,6 +39,15 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseMotivRulesEngine();
+app.MapMotivRulesEngineEndpoints();
 
 app.Run();
+return;
+
+bool AllowLocalhost(string url)
+{
+    if(!Uri.TryCreate(url, UriKind.Absolute, out var uri))
+        return false;
+    
+    return uri.Host == "localhost";
+}

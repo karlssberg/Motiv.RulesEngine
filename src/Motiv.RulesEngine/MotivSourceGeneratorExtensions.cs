@@ -12,6 +12,7 @@ public static class MotivSourceGeneratorExtensions
         method = method.MakeGenericMethod(modelType, metadataType);
         return (string)method.Invoke(null, [rootSpec])!;
     }
+    
     public static string GenerateSource<TModel, TMetadata>(this SpecBase<TModel, TMetadata> rootSpec) => GenerateSourceInternal(rootSpec);
     
     private static string GenerateSourceInternal<TModel, TMetadata>(this SpecBase<TModel, TMetadata> rootSpec) => string.Concat(VisitSpec(rootSpec));

@@ -58,7 +58,7 @@ public static class SpecConvert
         }
     }
 
-    public static PropositionResource ToPropositionResource(this ISpecExport export)
+    public static PropositionResource ToPropositionResource(this IPropositionExport export)
     {
         var parameters = export.TemplateParameters.ToArray();
         

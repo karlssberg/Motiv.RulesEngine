@@ -10,6 +10,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples", "examples", "{14
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Motiv.RulesEngine.AspNetCore", "Motiv.RulesEngine.AspNetCore\Motiv.RulesEngine.AspNetCore.csproj", "{32B7D606-7A98-40C1-A40E-27AE554FAF85}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Motiv.RulesEngine.AppHost", "examples\Motiv.RulesEngine.AppHost\Motiv.RulesEngine.AppHost.csproj", "{DB147EEF-B772-4DF4-8877-A4B2324FDF28}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Motiv.RulesEngine.ServiceDefaults", "examples\Motiv.RulesEngine.ServiceDefaults\Motiv.RulesEngine.ServiceDefaults.csproj", "{D370B772-0C9A-4A0E-A4FB-023750483E2E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Motiv.RulesEngine.LiteDB", "Motiv.RulesEngine.LiteDB\Motiv.RulesEngine.LiteDB.csproj", "{35E376A6-65C8-4861-9121-1F78B420B1E4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,8 +38,22 @@ Global
 		{32B7D606-7A98-40C1-A40E-27AE554FAF85}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{32B7D606-7A98-40C1-A40E-27AE554FAF85}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{32B7D606-7A98-40C1-A40E-27AE554FAF85}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DB147EEF-B772-4DF4-8877-A4B2324FDF28}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DB147EEF-B772-4DF4-8877-A4B2324FDF28}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DB147EEF-B772-4DF4-8877-A4B2324FDF28}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DB147EEF-B772-4DF4-8877-A4B2324FDF28}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D370B772-0C9A-4A0E-A4FB-023750483E2E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D370B772-0C9A-4A0E-A4FB-023750483E2E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D370B772-0C9A-4A0E-A4FB-023750483E2E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D370B772-0C9A-4A0E-A4FB-023750483E2E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{35E376A6-65C8-4861-9121-1F78B420B1E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{35E376A6-65C8-4861-9121-1F78B420B1E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{35E376A6-65C8-4861-9121-1F78B420B1E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{35E376A6-65C8-4861-9121-1F78B420B1E4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{6469BF3C-6CE6-40AA-909C-6E7CC2E92163} = {14DB98CB-222F-4E8C-9CEF-5EA8669096D6}
+		{DB147EEF-B772-4DF4-8877-A4B2324FDF28} = {14DB98CB-222F-4E8C-9CEF-5EA8669096D6}
+		{D370B772-0C9A-4A0E-A4FB-023750483E2E} = {14DB98CB-222F-4E8C-9CEF-5EA8669096D6}
 	EndGlobalSection
 EndGlobal

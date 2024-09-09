@@ -13,6 +13,8 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\Motiv.RulesEngine.AspNetCore\Motiv.RulesEngine.AspNetCore.csproj" />
+      <ProjectReference Include="..\..\Motiv.RulesEngine.LiteDB\Motiv.RulesEngine.LiteDB.csproj" />
+      <ProjectReference Include="..\Motiv.RulesEngine.ServiceDefaults\Motiv.RulesEngine.ServiceDefaults.csproj" />
     </ItemGroup>
 
 </Project>

@@ -6,41 +6,28 @@ public class Proposition : IEquatable<Proposition>
 {
     private static readonly Regex ParameterRegex = PropositionRegexFactory.FindParametersRegex();
 
+    private static readonly Regex ParametersWithBracesRegex =
+        PropositionRegexFactory.FindParametersIncludingBracesRegex();
+
     public Proposition(string template)
     {
         Template = template;
-        ParameterNames = FindTemplateParameters(template);
-        Id = PropositionRegexFactory.FindParametersIncludingBracesRegex().Replace(template, "");
+        ParameterNames = FindParameterValues(template);
+        Id = Normalize(template);
     }
 
     public string Template { get; set; }
     public IEnumerable<string> ParameterNames { get; set; }
 
     public string Id { get; }
-
-//    private static void ThrowIfParameterMismatch(string parameterName, string[] templateParameters, IDictionary<string, ParameterType> parameters)
-//    {
-//        var extraParameters = templateParameters.Except(parameters.Keys).ToArray();
-//        if (extraParameters.Length != 0)
-//            throw new ArgumentException(
-//                $"""
-//                 Template contains unrecognized parameter(s).
-//                     Unable to bind the following parameters:
-//                         '{string.Join("', '", extraParameters)}' 
-//                 """,
-//                parameterName);
-//    }
-
-
-
-    private static string[] FindTemplateParameters(string template) =>
-        ParameterRegex
-            .Matches(template)
-            .Select(match => match.Groups["parameter"].Value)
-            .ToArray();
-
-
     
+    public IDictionary<string, object> DetermineParameterValues(string proposition)
+    {
+        var parameterValues = FindParameterValues(proposition);
+        return ParameterNames
+            .Zip(parameterValues, (name, value) => (name, value))
+            .ToDictionary(pair => pair.name, object (pair) => pair.value);
+    }
 
     public bool Equals(Proposition? other)
     {
@@ -58,6 +45,15 @@ public class Proposition : IEquatable<Proposition>
     }
 
     public override int GetHashCode() => Id.GetHashCode();
+
+    public static string Normalize(string proposition) =>
+        ParametersWithBracesRegex.Replace(proposition, "");
+    
+    public static string[] FindParameterValues(string proposition) =>
+        ParameterRegex
+            .Matches(proposition)
+            .Select(match => match.Groups["parameter"].Value)
+            .ToArray();
 }
 
 public enum ParameterType

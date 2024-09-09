@@ -2,7 +2,7 @@
 
 [Export("custom-rule")]
 public class CustomRule() : RuleBase<Money>(() => 
-    new IsPositive()  & new IsGreaterThanCurrencyAmount(10, "USD", default!));
+    new IsPositive() & new IsGreaterThanCurrencyAmount(10, "USD", default!));
 
 public record Money(decimal Amount, string Currency, decimal NormalizedAmount);
 
