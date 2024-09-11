@@ -12,51 +12,7 @@ public static class SpecConvert
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
         Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) }
     }; 
-    
-    public static SpecBase<TModel, string>? Deserialize<TModel>(string json, IServiceProvider services)
-    {
-        var specDefinitionRoot = JsonSerializer.Deserialize<SpecResource>(json, SerializerOptions);
-        return specDefinitionRoot?.ToSpec<TModel>(services).ToExplanationSpec();
-    }
-
-    public static SpecBase ToSpec(this SpecResource rootSpecResource, Type modelType, IServiceProvider services)
-    {
-        var result = typeof(SpecConvert)
-                         .GetMethod(nameof(ToSpec), [typeof(SpecResource), typeof(IServiceProvider)])?
-                         .MakeGenericMethod(modelType)
-                         .Invoke(null, [rootSpecResource, services])
-                     ?? throw new InvalidOperationException("Failed to convert spec definition to spec");
-        
-        return (SpecBase) result;
-    }
-
-    public static SpecBase<TModel> ToSpec<TModel>(this SpecResource rootSpecResource, IServiceProvider services)
-    {
-        return Visit(rootSpecResource);
-        
-        SpecBase<TModel> Visit(SpecResource specDefinition)
-        {
-            var operands = specDefinition.Operands.Select(Visit).ToList();
-            return (specDefinition.Kind, operands) switch
-            {
-                (SpecKind.Proposition, _) =>
-                    services.GetSpec<TModel, string>(specDefinition.Name),
-                (SpecKind.And, _) =>
-                    operands.Select(op => op.ToExplanationSpec()).AndTogether(),
-                (SpecKind.AndAlso, _) =>
-                    operands.Select(op => op.ToExplanationSpec()).AndAlsoTogether(),
-                (SpecKind.Or, _) =>
-                    operands.Select(op => op.ToExplanationSpec()).OrTogether(),
-                (SpecKind.OrElse, _) =>
-                    operands.Select(op => op.ToExplanationSpec()).OrElseTogether(),
-                (SpecKind.XOr, [var left, var right]) =>
-                    left.XOr(right),
-                (SpecKind.Not, [var operand]) =>
-                    operand.ToExplanationSpec().Not(),
-                _ => throw new InvalidOperationException("Invalid spec kind or operand count")
-            };
-        }
-    }
+   
 
     public static PropositionResource ToPropositionResource(this IPropositionExport export)
     {
@@ -125,7 +81,7 @@ public static class SpecConvert
             
             return new SpecResource(SpecKind.Proposition)
             {
-                Name = spec.GetExportName() ?? spec.Statement.ToExternalName()
+                Name = spec.GetExportIdentifier() ?? spec.Statement.ToExternalName()
             };
         }
         

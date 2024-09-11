@@ -5,14 +5,6 @@ namespace Motiv.RulesEngine;
 
 public static class MotivSourceGeneratorExtensions
 {
-    public static string GenerateSource(this SpecBase rootSpec)
-    {
-        var (modelType, metadataType) = rootSpec.GetModelAndMetadataTypes();
-        var method = typeof(MotivSourceGeneratorExtensions).GetMethod(nameof(GenerateSourceInternal), BindingFlags.Static|BindingFlags.NonPublic)!;
-        method = method.MakeGenericMethod(modelType, metadataType);
-        return (string)method.Invoke(null, [rootSpec])!;
-    }
-    
     public static string GenerateSource<TModel, TMetadata>(this SpecBase<TModel, TMetadata> rootSpec) => GenerateSourceInternal(rootSpec);
     
     private static string GenerateSourceInternal<TModel, TMetadata>(this SpecBase<TModel, TMetadata> rootSpec) => string.Concat(VisitSpec(rootSpec));
@@ -26,13 +18,13 @@ public static class MotivSourceGeneratorExtensions
                 CreateNotExpression(unarySpec.Operand),
             SpecWithCustomParameterValues<TModel, TMetadata> customSpec =>
                 GenerateIdentifierWithParameters(customSpec),
-            _ => [spec.GetExportName() ?? spec.Statement.ToExternalName()]
+            _ => [spec.GetExportIdentifier() ?? spec.Statement.ToExternalName()]
         };
     }
 
     private static IEnumerable<string> GenerateIdentifierWithParameters<TModel, TMetadata>(SpecWithCustomParameterValues<TModel, TMetadata> customSpec)
     {
-        var exportName = customSpec.Underlying.GetExportName();
+        var exportName = customSpec.Underlying.GetExportIdentifier();
         var splitText = Regex.Split(exportName, "(\\{[^}]+\\})");
         foreach (var text in splitText)
         {

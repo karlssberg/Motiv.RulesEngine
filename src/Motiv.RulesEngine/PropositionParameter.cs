@@ -3,7 +3,32 @@ using System.Text.Json.Serialization;
 
 namespace Motiv.RulesEngine;
 
-public record PropositionParameter(string Name, MotivPrimitive Kind);
+public record PropositionParameter(string Name, MotivPrimitive Kind)
+{
+    public bool TryParse(string value, out object result)
+    {
+        switch (Kind) 
+        {
+            case MotivPrimitive.Decimal when decimal.TryParse(value, out var decimalValue):
+                result = decimalValue;
+                return true;
+            case MotivPrimitive.Integer when int.TryParse(value, out var intValue):
+                result = intValue;
+                return true;
+            case MotivPrimitive.DateTime when DateTime.TryParse(value, out var dateTimeValue):
+                result = dateTimeValue;
+                return true;
+            case MotivPrimitive.String when value is ['"', .., '"']:
+                result = value[1..^1];
+                return true;
+            case MotivPrimitive.Unknown:
+                throw new InvalidOperationException($"The proposition '{Name}' has an 'Unknown' Kind");
+            default:
+                result = null!;
+                return false;
+        };
+    }
+};
 
 [JsonConverter(typeof(CamelCaseJsonStringEnumConverter<MotivPrimitive>))]
 public enum MotivPrimitive

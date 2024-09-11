@@ -7,6 +7,7 @@ public interface IPropositionExport
     
     IEnumerable<PropositionParameter> TemplateParameters { get; }
     string Template { get; }
+    (bool isValid, IEnumerable<string> errors) Validate(string candidate);
 }
 
 public interface IPropositionExport<TModel> : IPropositionExport

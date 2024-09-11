@@ -21,13 +21,6 @@ public class Proposition : IEquatable<Proposition>
 
     public string Id { get; }
     
-    public IDictionary<string, object> DetermineParameterValues(string proposition)
-    {
-        var parameterValues = FindParameterValues(proposition);
-        return ParameterNames
-            .Zip(parameterValues, (name, value) => (name, value))
-            .ToDictionary(pair => pair.name, object (pair) => pair.value);
-    }
 
     public bool Equals(Proposition? other)
     {
@@ -48,12 +41,20 @@ public class Proposition : IEquatable<Proposition>
 
     public static string Normalize(string proposition) =>
         ParametersWithBracesRegex.Replace(proposition, "");
-    
+
     public static string[] FindParameterValues(string proposition) =>
         ParameterRegex
             .Matches(proposition)
             .Select(match => match.Groups["parameter"].Value)
             .ToArray();
+    
+    public IDictionary<string, string> CreateSerializedParameterValueLookup(string candidate)
+    {
+        var parameterValues = FindParameterValues(candidate);
+        return ParameterNames
+            .Zip(parameterValues, (name, value) => (name, value))
+            .ToDictionary(pair => pair.name, pair => pair.value);
+    }
 }
 
 public enum ParameterType

@@ -11,7 +11,6 @@ public abstract class RuleBase
     }
     
     public string Name { get; }
-    
 
     private string GetName() => GetType().GetCustomAttribute<ExportAttribute>()?.Identifier ?? GetType().Name;
 }
